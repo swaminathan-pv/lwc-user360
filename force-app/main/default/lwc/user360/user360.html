@@ -1,0 +1,19 @@
+<template>
+    <lightning-card>
+        <h3 slot="title">
+            <lightning-icon icon-name="standard:report" size="medium"></lightning-icon>
+            <span class="slds-m-left_medium">Report on User's Membership</span>
+        </h3>
+        <template if:true={showTable}>
+            <c-paginator records={userRecords} total-records={userRecords.length} show-search-box="true" onpaginatorchange={handlePaginatorChange} onemptysearchresults={handleEmptySearchResults}>
+            </c-paginator>
+            <lightning-datatable key-field="Id" data={recordsToDisplay} columns={columns} hide-checkbox-column show-row-number-column row-number-offset={rowNumberOffset} wrap-text-max-lines="3">
+            </lightning-datatable>
+            <template if:true={displayEmptyMessage}>
+                <div class="slds-text-align_center">
+                    <div class="emptyText slds-m-top_medium">No results found.</div>
+                </div>
+            </template>
+        </template>
+    </lightning-card>
+</template>
