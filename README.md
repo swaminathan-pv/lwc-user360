@@ -1,4 +1,4 @@
-# Lightning Web Components User 360 App 
+# Lightning Web Component User 360 App 
 
 This app makes it simple to view Users and their Role, Profile, Public Group, Queues and Permission set assignments in Salesforce ORG. The app is built with SalesforceDX using Lightning Web Components.
 This package can be installed on any org to view/export on user membership.
