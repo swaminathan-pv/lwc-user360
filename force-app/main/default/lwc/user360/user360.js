@@ -24,7 +24,6 @@ export default class User360 extends LightningElement {
             for (let i = 0; i < data.length; i++) {
                 let userDetail = {};
                 userDetail.rowNumber = '' + (i + 1);
-                // TODO: Use Navigation component
                 userDetail.userLink = '/' + data[i].id;
                 userDetail = Object.assign(userDetail, data[i]);
                 recs.push(userDetail);
@@ -46,6 +45,5 @@ export default class User360 extends LightningElement {
     handleEmptySearchResults(event) {
         this.recordsToDisplay = event.detail;
         this.displayEmptyMessage = true;
-        console.log('<<<Empty results');
     }
 }

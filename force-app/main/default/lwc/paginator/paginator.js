@@ -86,21 +86,17 @@ export default class Paginator extends LightningElement {
         window.clearTimeout(this.delayTimeout);
         const searchKey = event.target.value;
         if (searchKey) {
+            // eslint-disable-next-line @lwc/lwc/no-async-operation
             this.delayTimeout = setTimeout(() => {
                 this.controlPagination = hideIt;
                 this.setPaginationControls();
                 this.searchKey = searchKey;
-                console.log('<<<this.searchKey>>>' + this.searchKey);
-                console.log('<<<this.searchKey lowercase>>>' + this.searchKey.toLowerCase());
                 //Use other field name here in place of 'Name' field if you want to search by other field
                 //this.recordsToDisplay = this.records.filter(rec => rec.includes(searchKey));
                 //Search with any column value (Updated as per the feedback)
                 this.recordsToDisplay = this.records.filter(rec => JSON.stringify(rec).toLowerCase().includes(searchKey.toLowerCase()));
-                console.log('<<<this.recordsToDisplay>>>' + JSON.stringify(this.recordsToDisplay));
-                // TODO: Return no results and display message accordingly
                 if (Array.isArray(this.recordsToDisplay) && this.recordsToDisplay.length > 0) this.dispatchEvent(new CustomEvent('paginatorchange', { detail: this.recordsToDisplay })); //Send records to display on table to the parent component
                 if (this.recordsToDisplay.length === 0) {
-                    console.log('<<<empty>>>');
                     this.dispatchEvent(new CustomEvent('emptysearchresults', { detail: this.recordsToDisplay })); //Send records to display on table to the parent component
                 }
             }, DELAY);
@@ -110,8 +106,7 @@ export default class Paginator extends LightningElement {
             this.setRecordsToDisplay();
         }
     }
-    exportToCSV(event) {
-        console.log('<<<this.recordsToDisplay>>>' + JSON.stringify(this.recordsToDisplay));
+    exportToCSV() {
         let rowEnd = '\n';
         let csvString = '';
         // this set eliminates the duplicates if have any duplicate keys
@@ -119,14 +114,11 @@ export default class Paginator extends LightningElement {
         // getting keys from data
         this.recordsToDisplay.forEach(function(record) {
             Object.keys(record).forEach(function(key) {
-                console.log('<<<key>>>' + key);
-                if (key != 'userLink' && key != 'id') rowData.add(key);
+                if (key !== 'userLink' && key !== 'id' && key !== 'rowNumber') rowData.add(key);
             });
         });
         // Array.from() method returns an Array object from any object with a length property or an iterable object.
         rowData = Array.from(rowData);
-        console.log('<<<rowData>>>' + rowData);
-        console.log('<<<rowData>>>' + JSON.stringify(rowData));
         // splitting using ','
         csvString += rowData.join(',');
         csvString += rowEnd;
@@ -151,7 +143,6 @@ export default class Paginator extends LightningElement {
             }
             csvString += rowEnd;
         }
-        console.log('<<<csvString>>>' + csvString);
         // Creating anchor element to download
         let downloadElement = document.createElement('a');
         // This  encodeURI encodes special characters, except: , / ? : @ & = + $ # (Use encodeURIComponent() to encode these characters).

@@ -1,53 +1,84 @@
-/**
- * TODO: Get sample header and update
+/*
+ * Copyright (c) 2020 Swaminathan Venkatramanan <swaminathan.venkatramanan@gmail.com>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of mosquitto nor the names of its
+ *    contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 public with sharing class UserInfoController {
 
 	@AuraEnabled(cacheable = true)
-	public static List <UserInfo> getUserDetails(){
-                //TODO: Add debug/Info statements to all methods
-		Map <Id, UserInfo> userDetails = new Map <Id,UserInfo>();
-		List<UserInfo> userInfos = new List<UserInfo>();
+	public static List <UserInfoWrapper> getUserDetails(){
+		System.debug(LoggingLevel.INFO, '<<<Begin Getting UserDetails>>>');
+		Map <Id, UserInfoWrapper> userDetails = new Map <Id,UserInfoWrapper>();
+		List<UserInfoWrapper> userInfos = new List<UserInfoWrapper>();
 		getUserInfo(userDetails);
 		getPermissionSetMembershipInfo(userDetails);
 		getGroupQueueMembershipInfo(userDetails);
 		for(String userId: userDetails.keySet()) {
 			userInfos.add(userDetails.get(userId));
 		}
+		System.debug(LoggingLevel.INFO, '<<<Completed Getting UserDetails>>>');
 		return userInfos;
 	}
 
-	private static void getUserInfo(Map <Id, UserInfo> userDetails){
+	private static void getUserInfo(Map <Id, UserInfoWrapper> userDetails){
+		System.debug(LoggingLevel.INFO, '<<<Begin Getting UserInfo>>>');
 		for(User userRec: [SELECT Id, Name, Email, UserRole.Name, Profile.Name FROM User]) {
-			UserInfo userRecordInfo = new UserInfo();
-			userRecordInfo.id = userRec.Id;
-			userRecordInfo.userName = userRec.Name;
-			userRecordInfo.profile = userRec.Profile.Name;
-			userRecordInfo.role = userRec.UserRole.Name;
-			userRecordInfo.email = userRec.Email;
-			userDetails.put(userRec.Id,userRecordInfo);
+			UserInfoWrapper userInfo = new UserInfoWrapper();
+			userInfo.id = userRec.Id;
+			userInfo.userName = userRec.Name;
+			userInfo.profile = userRec.Profile.Name;
+			userInfo.role = userRec.UserRole.Name;
+			userInfo.email = userRec.Email;
+			userDetails.put(userRec.Id,userInfo);
 		}
+		System.debug(LoggingLevel.INFO, '<<<Completed Getting UserInfo>>>');
 	}
 
-	private static void getPermissionSetMembershipInfo(Map <Id, UserInfo> userDetails){
+	private static void getPermissionSetMembershipInfo(Map <Id, UserInfoWrapper> userDetails){
+		System.debug(LoggingLevel.INFO, '<<<Begin Getting PermissionSetMembershipInfo>>>');
 		for(PermissionSetAssignment userPermissionSetDetail: [SELECT AssigneeId, Assignee.Name, PermissionSet.Label FROM PermissionSetAssignment Where PermissionSet.isOwnedBYProfile = FALSE order by AssigneeId ]) {
 			if(userDetails.containsKey(userPermissionSetDetail.AssigneeId)) {
-				UserInfo userRecordInfo = userDetails.get(userPermissionSetDetail.AssigneeId);
-				String permissionSetAssignments = userRecordInfo.permissionSetMembership == null ? '': userRecordInfo.permissionSetMembership;
+				UserInfoWrapper userInfo = userDetails.get(userPermissionSetDetail.AssigneeId);
+				String permissionSetAssignments = userInfo.permissionSetMembership == null ? '': userInfo.permissionSetMembership;
 				if(permissionSetAssignments!='') {
 					permissionSetAssignments = permissionSetAssignments + ',' + userPermissionSetDetail.PermissionSet.Label;
 				}
 				else{
 					permissionSetAssignments =  userPermissionSetDetail.PermissionSet.Label;
 				}
-				userRecordInfo.permissionSetMembership =  permissionSetAssignments;
+				userInfo.permissionSetMembership =  permissionSetAssignments;
 			}
 		}
+		System.debug(LoggingLevel.INFO, '<<<Completed Getting PermissionSetMembershipInfo>>>');
 	}
 
-	private static void getGroupQueueMembershipInfo(Map <Id, UserInfo> userDetails){
+	private static void getGroupQueueMembershipInfo(Map <Id, UserInfoWrapper> userDetails){
+		System.debug(LoggingLevel.INFO, '<<<Begin Getting GroupQueueMembershipInfo>>>');
 		for(GroupMember gm: [SELECT Id, UserOrGroupId, group.name, group.type FROM GroupMember ]) {
-                        // TODO: Filtering out only User's memebership. OOG records constitute groups being part of queue
+                        // NOTE: Filtering out only User's memebership. OOG records constitute groups being part of queue
 			if(userDetails.get(gm.UserOrGroupId)!=null) {
 				if(gm.group.type =='Queue') {
 					getQueueMembership(gm, userDetails);
@@ -57,11 +88,13 @@ public with sharing class UserInfoController {
 				}
 			}
 		}
+		System.debug(LoggingLevel.INFO, '<<<Completed Getting GroupQueueMembershipInfo>>>');
 	}
 
-	private static void getQueueMembership(GroupMember gm, Map <Id, UserInfo> userDetails){
-		UserInfo userRecordInfo = userDetails.get(gm.UserOrGroupId);
-		String queueAssignments = userRecordInfo.queueMembership == null ? '': userRecordInfo.queueMembership;
+	private static void getQueueMembership(GroupMember gm, Map <Id, UserInfoWrapper> userDetails){
+		System.debug(LoggingLevel.INFO, '<<<Begin Getting QueueMembership>>>');
+		UserInfoWrapper userInfo = userDetails.get(gm.UserOrGroupId);
+		String queueAssignments = userInfo.queueMembership == null ? '': userInfo.queueMembership;
 		if(queueAssignments!='') {
 			queueAssignments = queueAssignments + ',' + gm.group.Name;
 		}
@@ -69,22 +102,25 @@ public with sharing class UserInfoController {
 			queueAssignments =  gm.group.Name;
 		}
 		queueAssignments = queueAssignments + ',' + gm.group.Name;
-		userRecordInfo.queueMembership = queueAssignments;
+		userInfo.queueMembership = queueAssignments;
+		System.debug(LoggingLevel.INFO, '<<<Completed Getting QueueMembership>>>');
 	}
 
-	private static void getGroupMembership(GroupMember gm, Map <Id, UserInfo> userDetails){
-		UserInfo userRecordInfo = userDetails.get(gm.UserOrGroupId);
-		String groupAssignments = userRecordInfo.groupMembership == null ? '': userRecordInfo.groupMembership;
+	private static void getGroupMembership(GroupMember gm, Map <Id, UserInfoWrapper> userDetails){
+		System.debug(LoggingLevel.INFO, '<<<Begin Getting GroupMembership>>>');
+		UserInfoWrapper userInfo = userDetails.get(gm.UserOrGroupId);
+		String groupAssignments = userInfo.groupMembership == null ? '': userInfo.groupMembership;
 		if(groupAssignments!='') {
 			groupAssignments = groupAssignments + ',' + gm.group.Name;
 		}
 		else{
 			groupAssignments =  gm.group.Name;
 		}
-		userRecordInfo.groupMembership = groupAssignments;
+		userInfo.groupMembership = groupAssignments;
+		System.debug(LoggingLevel.INFO, '<<<Completed Getting GroupMembership>>>');
 	}
-
-	private class UserInfo {
+	@TestVisible
+	private class UserInfoWrapper {
 		@AuraEnabled public String id {get; set;}
 		@AuraEnabled public String userName {get; set;}
 		@AuraEnabled public String role {
