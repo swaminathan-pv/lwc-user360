@@ -39,8 +39,8 @@ This package can be installed on any org to view/export on user membership.
     sfdx force:source:push
     ```
 
-1. In the new scratch org permission setts assign View User 360 to your system admin user account that grants access to the app and tabs.
-
+1. In the new scratch org, under permission sets assign View User360 to your system admin user account that grants access to the app and tabs. The tab   
+   visibility for Report tab assigned via the below command sometimes does not work. In that case goto Setup -> Permission Sets -> View User360-> Object      Settings -> Report and check the boxes to make the tab available and visible.
      ```
     sfdx force:user:permset:assign -n View_User360
     ```
@@ -56,8 +56,10 @@ This package can be installed on any org to view/export on user membership.
 
 ## Resources
 
-Lightning datatable with pagination (https://vkambham.blogspot.com/2020/02/lwc-paginator.html)
+Lightning datatable with pagination (https://vkambham.blogspot.com/2020/02/lwc-paginator.html).
+
 [Quick Start: Lightning Web Components](https://trailhead.salesforce.com/content/learn/projects/quick-start-lightning-web-components/)
+
 
 
 
