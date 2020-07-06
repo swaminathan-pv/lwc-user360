@@ -23,14 +23,14 @@ This package can be installed on any org to view/export on user membership.
 1. Clone the sfdx-user360 repository:
 
     ```
-    git clone https://github.com/swaminathan-pv/sfdx-user360
-    cd sfdx-user360
+    git clone https://github.com/swaminathan-pv/lwc-user360
+    cd lwc-user360
     ```
 
-1. Create a scratch org and provide it with an alias (**sfdx-user360** in the command below):
+1. Create a scratch org and provide it with an alias (**lwc-user360** in the command below):
 
     ```
-    sfdx force:org:create -s -f config/project-scratch-def.json -a sfdx-user360
+    sfdx force:org:create -s -f config/project-scratch-def.json -a lwc-user360
     ```
 
 1. Push the app to your scratch org:
