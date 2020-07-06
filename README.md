@@ -40,8 +40,10 @@ This package can be installed on any org to view/export on user membership.
     ```
 
 1. In the new scratch org permission setts assign View User 360 to your system admin user account that grants access to the app and tabs.
-`sfdx force:user:permset:assign -n View_User360`
 
+     ```
+    sfdx force:user:permset:assign -n View_User360
+    ```
 
 1. Open the scratch org:
 
@@ -54,7 +56,8 @@ This package can be installed on any org to view/export on user membership.
 
 ## Resources
 
-
+Lightning datatable with pagination (https://vkambham.blogspot.com/2020/02/lwc-paginator.html)
+[Quick Start: Lightning Web Components](https://trailhead.salesforce.com/content/learn/projects/quick-start-lightning-web-components/)
 
 
 
